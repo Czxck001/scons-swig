@@ -1,0 +1,13 @@
+# C target files
+*.o
+*.so
+
+# Python temporaries
+__pycache__
+*.pyc
+
+# SCons temporaries
+.sconsign.dblite
+
+# SWIG wrappers
+*_wrap.c

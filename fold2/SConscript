@@ -1,0 +1,5 @@
+Import('env')
+includes = ['./inc']
+envc = env.Clone(CPPPATH=includes)
+objs = envc.Object(Glob('src/*.c'))
+Return('objs')
