@@ -42,7 +42,7 @@ def swig_wrap_python(interface, includes, source, env):
     c_wrap_object = swig_base + '_wrap.o'
     tgts = envc.SwigWrapPython([
         module_python, module_so, c_wrap, c_wrap_object
-    ], objs)
+    ], source)
     return tgts
 
 
