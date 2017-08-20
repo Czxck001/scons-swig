@@ -2,6 +2,18 @@ import os
 import os.path as op
 
 
+def _get_std_includes():
+    ''' Get GCC default include directories
+    '''
+    import re
+    patt = re.compile(r'#include <\.\.\.> search starts here:'
+                      r'\s([\s\S]*)End of search list\.')
+    with os.popen('echo "" | gcc -xc - -v -E 2>&1') as p:
+        txt = p.read()
+    return ' '.join(['-I'+dirc
+                     for dirc in next(patt.finditer(txt)).groups()[0].split()])
+
+
 def swig_builder_action(target, source, env):
     with os.popen('python3-config --ldflags') as p:
         py3_ldflags = next(p).strip()
@@ -19,7 +31,8 @@ def swig_builder_action(target, source, env):
     source_objects = ' '.join([src_o.abspath for src_o in source])
 
     command = ' '.join([
-        'swig -python -includeall %s %s' % (swig_includes, swig_interface),
+        'swig -python -includeall %s %s %s' % (_get_std_includes(),
+                                               swig_includes, swig_interface),
         '&& gcc -O2 -fpic %s %s -c %s' % (py3_includes, swig_includes, c_wrap),
         '&& gcc -shared %s %s %s -o %s' % (
             c_wrap_object, source_objects, py3_ldflags, module_so
