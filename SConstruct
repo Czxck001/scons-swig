@@ -7,11 +7,18 @@ def _get_std_includes():
     '''
     import re
     patt = re.compile(r'#include <\.\.\.> search starts here:'
-                      r'\s([\s\S]*)End of search list\.')
+                      r'\s([\s\S]*)'
+                      r'End of search list\.')
     with os.popen('echo "" | gcc -xc - -v -E 2>&1') as p:
         txt = p.read()
-    return ' '.join(['-I'+dirc
-                     for dirc in next(patt.finditer(txt)).groups()[0].split()])
+
+    # remove trailing parathesis in Mac like
+    # /System/Library/Frameworks (framework directory)
+    clean_lines = [
+        re.sub(r'\s\(.*\)', '', line.strip())
+        for line in next(patt.finditer(txt)).groups()[0].split('\n')
+    ]
+    return ' '.join(['-I'+dirc for dirc in clean_lines])
 
 
 def swig_builder_action(target, source, env):
